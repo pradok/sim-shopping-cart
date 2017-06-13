@@ -59,14 +59,14 @@ describe('Test ShoppingCart class', function () {
     shoppingCart.add('ult_small');
     shoppingCart.add('ult_small');
     shoppingCart.add('ult_small');
-    assert.equal(shoppingCart.total(), 49.80, 'return correct total');
+    assert.equal(shoppingCart.total(), 49.80, 'return correct discount total');
   });
   it('Get discount total 94.7 and cart 3 x Unlimited 1GB, 1 x Unlimited 5 GB', function () {
     shoppingCart.add('ult_small');
     shoppingCart.add('ult_small');
     shoppingCart.add('ult_small');
     shoppingCart.add('ult_large');
-    assert.equal(shoppingCart.total(), 94.70, 'return correct total');
+    assert.equal(shoppingCart.total(), 94.70, 'return correct discount total');
   });
   it('Get discount total 209.40 and cart 2 x Unlimited 1GB, 4 x Unlimited 5 GB', function () {
     shoppingCart.add('ult_small');
@@ -75,6 +75,6 @@ describe('Test ShoppingCart class', function () {
     shoppingCart.add('ult_large');
     shoppingCart.add('ult_large');
     shoppingCart.add('ult_large');
-    assert.equal(shoppingCart.total(), 209.40, 'return correct total');
+    assert.equal(shoppingCart.total(), 209.40, 'return correct discount total');
   });
 });
