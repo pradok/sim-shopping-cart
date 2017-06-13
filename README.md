@@ -15,3 +15,7 @@ After all dependencies installed:
 The tests covers all the scenarios as specified.
 
 2. `npm run test:watch` for running test while doing code changes.
+
+Assumptions
+-----------
+Can only add 1 at a time into the cart.

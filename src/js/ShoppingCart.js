@@ -11,12 +11,13 @@ export default class ShoppingCart {
     this.cart[sku] = this.cart[sku] && this.cart[sku] > 0 ? this.cart[sku] += 1 : 1;
     if (promo_code) this.promoCode.push(promo_code);
     this._adjustCart(sku);
+    this.cartItems = [];
+    this._addCartItems(this.cart);
+    this._addCartItems(this.cart.bundle);
     return this.cart;
   }
 
   get items () {
-    this._addCartItems(this.cart);
-    this._addCartItems(this.cart.bundle);
     return this.cartItems;
   }
 
