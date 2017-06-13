@@ -11,8 +11,7 @@ Development
 
 After all dependencies installed:
 
-1. Start the development server with `npm start`
-2. Point your browser to [http://localhost:8080](http://localhost:8080)
+1. Run test `npm test`
+The tests covers all the scenarios as specified.
 
-Run test
-`npm test`
+2. `npm run test:watch` for running test while doing code changes.
