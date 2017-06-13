@@ -2,11 +2,14 @@ export default class ShoppingCart {
   constructor (pricingRules) {
     this.pricingRules = pricingRules;
     this.cart = {bundle: {}};
+    this.promoCode = [];
+    this.totalCart = 0;
     this.cartItems = [];
   }
 
-  add (sku) {
+  add (sku, promo_code) {
     this.cart[sku] = this.cart[sku] && this.cart[sku] > 0 ? this.cart[sku] += 1 : 1;
+    if (promo_code) this.promoCode.push(promo_code);
     this.adjustCart(sku);
     return this.cart;
   }
@@ -52,7 +55,27 @@ export default class ShoppingCart {
         total += this.productTotal(findProduct, this.cart[sku]);
       }
     });
-    return this.round(total, 2);
+    this.totalCart = this.round(total, 2);
+    this.promoTotal();
+    return this.totalCart;
+  }
+
+  promoTotal () {
+    if (this.promoCode.length > 0) {
+      this.promoCode.forEach(code => {
+        this.pricingRules.find(rule => {
+          if (rule.promoCodes) {
+            rule.promoCodes.find(promo => {
+              if (promo[code]) {
+                const discount = this.totalCart * promo[code];
+                const discountTotal = this.totalCart - discount;
+                this.totalCart = this.round(discountTotal, 2);;
+              }
+            });
+          };
+        });
+      });
+    }
   }
 
   productTotal (product, qty) {

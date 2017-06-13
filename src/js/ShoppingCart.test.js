@@ -31,6 +31,11 @@ const priceRules = [
     sku: '1gb',
     name: '1 GB Data-pack',
     price: 9.90
+  },
+  {
+    promoCodes: [
+      {'I<3AMAYSIM': .1}
+    ]
   }
 ];
 
@@ -101,6 +106,16 @@ describe('Test ShoppingCart class', function () {
     shoppingCart.add('ult_medium');
     shoppingCart.add('ult_medium');
     assert.equal(shoppingCart.total(), 84.70, 'return correct discount total');
+    assert.deepEqual(shoppingCart.items(), expectedCartItems, 'return cart Items');
+  });
+  it('Get discount total 31.32 and Cart Items 1 x Unlimited 1 GB, 1 X 1 GB Data-pack', function () {
+    const expectedCartItems = [
+      {sku: 'ult_small', name: 'Unlimited 1 GB', qty: 1},
+      {sku: '1gb', name: '1 GB Data-pack', qty: 1}
+    ];
+    shoppingCart.add('ult_small');
+    shoppingCart.add('1gb', 'I<3AMAYSIM');
+    assert.equal(shoppingCart.total(), 31.32, 'return correct discount total');
     assert.deepEqual(shoppingCart.items(), expectedCartItems, 'return cart Items');
   });
 });
