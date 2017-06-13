@@ -10,11 +10,32 @@ export default class ShoppingCart {
   add (sku, promo_code) {
     this.cart[sku] = this.cart[sku] && this.cart[sku] > 0 ? this.cart[sku] += 1 : 1;
     if (promo_code) this.promoCode.push(promo_code);
-    this.adjustCart(sku);
+    this._adjustCart(sku);
     return this.cart;
   }
-  adjustCart (sku) {
-    const product = this.findProductBySKU(sku);
+
+  get items () {
+    this._addCartItems(this.cart);
+    this._addCartItems(this.cart.bundle);
+    return this.cartItems;
+  }
+
+  get total () {
+    let total = 0;
+    const skus = Object.keys(this.cart);
+    skus.forEach(sku => {
+      const findProduct = this._findProductBySKU(sku);
+      if (findProduct) {
+        total += this._productTotal(findProduct, this.cart[sku]);
+      }
+    });
+    this.totalCart = this._round(total, 2);
+    this._promoTotal();
+    return this.totalCart;
+  }
+
+  _adjustCart (sku) {
+    const product = this._findProductBySKU(sku);
     if (product && product.extras && product.extras.length) {
       const {extras} = product;
       const {bundle} = this.cart;
@@ -32,7 +53,7 @@ export default class ShoppingCart {
     const skus = Object.keys(cart);
     if (skus.length > 0 && cart.constructor === Object) {
       skus.forEach(sku => {
-        const product = this.findProductBySKU(sku);
+        const product = this._findProductBySKU(sku);
         if (product) {
           this.cartItems.push({sku, name: product.name, qty: cart[sku]});
         }
@@ -40,27 +61,7 @@ export default class ShoppingCart {
     }
   }
 
-  items () {
-    this._addCartItems(this.cart);
-    this._addCartItems(this.cart.bundle);
-    return this.cartItems;
-  }
-
-  total () {
-    let total = 0;
-    const skus = Object.keys(this.cart);
-    skus.forEach(sku => {
-      const findProduct = this.findProductBySKU(sku);
-      if (findProduct) {
-        total += this.productTotal(findProduct, this.cart[sku]);
-      }
-    });
-    this.totalCart = this.round(total, 2);
-    this.promoTotal();
-    return this.totalCart;
-  }
-
-  promoTotal () {
+  _promoTotal () {
     if (this.promoCode.length > 0) {
       this.promoCode.forEach(code => {
         this.pricingRules.find(rule => {
@@ -69,7 +70,7 @@ export default class ShoppingCart {
               if (promo[code]) {
                 const discount = this.totalCart * promo[code];
                 const discountTotal = this.totalCart - discount;
-                this.totalCart = this.round(discountTotal, 2);;
+                this.totalCart = this._round(discountTotal, 2);;
               }
             });
           };
@@ -78,7 +79,7 @@ export default class ShoppingCart {
     }
   }
 
-  productTotal (product, qty) {
+  _productTotal (product, qty) {
     if (product.discount && qty >= product.discount.minQty) {
       const discountCondition = qty % product.discount.minQty;
       if (discountCondition === 0) {
@@ -92,19 +93,18 @@ export default class ShoppingCart {
           price = product.price;
           qtyAdjust = qty - reduceQtyBy;
         }
-        return this.round(qtyAdjust * price, 2);
+        return this._round(qtyAdjust * price, 2);
       }
     }
-    return this.round(qty * product.price, 2);
+    return this._round(qty * product.price, 2);
   }
 
-  round (val, toDecimals) {
+  _round (val, toDecimals) {
     const num = Number(Math.round(val + 'e' + toDecimals) + 'e-' + toDecimals);
     return num;
   }
 
-  findProductBySKU (sku) {
+  _findProductBySKU (sku) {
     return this.pricingRules.find(product => product.sku === sku);
   }
 }
-
