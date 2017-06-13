@@ -6,7 +6,21 @@ export default class ShoppingCart {
 
   add (sku) {
     this.cart[sku] = this.cart[sku] && this.cart[sku] > 0 ? this.cart[sku] += 1 : 1;
+    this.adjustCart(sku);
     return this.cart;
+  }
+
+  adjustCart (sku) {
+    const product = this.findProductBySKU(sku);
+    if (product && product.extras && product.extras.length) {
+      const {extras} = product;
+      extras.forEach(extra => {
+        if(this.cart[sku] % extra.qtyThreshold === 0) {
+          this.cart[extra.sku] = this.cart[extra.sku] && this.cart[extra.sku] > 0
+            ? this.cart[extra.sku] += extra.qtyAdd : extra.qtyAdd;
+        }
+      });
+    }
   }
 
   items () {

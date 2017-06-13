@@ -39,6 +39,7 @@ describe('Test ShoppingCart class', function () {
   beforeEach(function () {
     shoppingCart = new ShoppingCart(priceRules);
   });
+  /*
   it('shoppingCart class is defined', function () {
     assert.isDefined(shoppingCart, 'shoppingCart defined');
     assert.isDefined(shoppingCart.constructor, 'shoppingCart constructor defined');
@@ -88,6 +89,19 @@ describe('Test ShoppingCart class', function () {
     shoppingCart.add('ult_large');
     shoppingCart.add('ult_large');
     shoppingCart.add('ult_large');
+    assert.equal(shoppingCart.total(), 209.40, 'return correct discount total');
+    assert.deepEqual(shoppingCart.items(), expectedCartItems, 'return cart Items');
+  });
+  */
+  it('Get discount total 84.70 and Cart Items 1 x Unlimited 1 GB, 2 x Unlimited 2 GB, 2 X 1 GB Data-pack', function () {
+    const expectedCartItems = [
+      {sku: 'ult_small', name: 'Unlimited 1 GB', qty: 1},
+      {sku: 'ult_medium', name: 'Unlimited 2 GB', qty: 2},
+      {sku: '1gb', name: '1 GB Data-pack', qty: 2}
+    ];
+    shoppingCart.add('ult_small');
+    shoppingCart.add('ult_medium');
+    shoppingCart.add('ult_medium');
     assert.equal(shoppingCart.total(), 209.40, 'return correct discount total');
     assert.deepEqual(shoppingCart.items(), expectedCartItems, 'return cart Items');
   });
