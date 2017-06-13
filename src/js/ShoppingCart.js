@@ -1,7 +1,8 @@
 export default class ShoppingCart {
   constructor (pricingRules) {
     this.pricingRules = pricingRules;
-    this.cart = {};
+    this.cart = {bundle: {}};
+    this.cartItems = [];
   }
 
   add (sku) {
@@ -9,30 +10,37 @@ export default class ShoppingCart {
     this.adjustCart(sku);
     return this.cart;
   }
-
   adjustCart (sku) {
     const product = this.findProductBySKU(sku);
     if (product && product.extras && product.extras.length) {
       const {extras} = product;
+      const {bundle} = this.cart;
       extras.forEach(extra => {
         if(this.cart[sku] % extra.qtyThreshold === 0) {
-          this.cart[extra.sku] = this.cart[extra.sku] && this.cart[extra.sku] > 0
-            ? this.cart[extra.sku] += extra.qtyAdd : extra.qtyAdd;
+          bundle[extra.sku] = bundle[extra.sku] && bundle[extra.sku] > 0
+            ? bundle[extra.sku] += extra.qtyAdd : extra.qtyAdd;
+        }
+      });
+      this.cart.bundle = bundle;
+    }
+  }
+
+  _addCartItems(cart) {
+    const skus = Object.keys(cart);
+    if (skus.length > 0 && cart.constructor === Object) {
+      skus.forEach(sku => {
+        const product = this.findProductBySKU(sku);
+        if (product) {
+          this.cartItems.push({sku, name: product.name, qty: cart[sku]});
         }
       });
     }
   }
 
   items () {
-    const skus = Object.keys(this.cart);
-    const products = [];
-    skus.forEach(sku => {
-      const product = this.findProductBySKU(sku);
-      if(product){
-        products.push({sku, name: product.name, qty: this.cart[sku]});
-      }
-    });
-    return products;
+    this._addCartItems(this.cart);
+    this._addCartItems(this.cart.bundle);
+    return this.cartItems;
   }
 
   total () {
