@@ -5,16 +5,34 @@ export default class ShoppingCart {
     this.promoCode = [];
     this.totalCart = 0;
     this.cartItems = [];
+    this.cartItemTotal = [];
   }
 
   add (sku, promo_code) {
     this.cart[sku] = this.cart[sku] && this.cart[sku] > 0 ? this.cart[sku] += 1 : 1;
     if (promo_code) this.promoCode.push(promo_code);
-    this._adjustCart(sku);
-    this.cartItems = [];
-    this._addCartItems(this.cart);
-    this._addCartItems(this.cart.bundle);
+    //this._addCartItems(this.cart);
+    //this._addCartItems(this.cart.bundle);
+    const findProduct = this._findProductBySKU(sku);
+    if(findProduct) {
+      this._adjustCart(findProduct.product);
+      const cartItemIndex = this._addToCart(findProduct.product, 1);
+      this._cartTotal(findProduct.product, cartItemIndex);
+    }
     return this.cart;
+  }
+
+  _addToCart(product, qty) {
+    let cartItemIndex;
+    const findIndexInCart = this.cartItems.findIndex(item => item.sku === product.sku);
+    if (findIndexInCart !== -1) {
+      this.cartItems[findIndexInCart].qty += qty;
+      cartItemIndex = findIndexInCart;
+    } else {
+      this.cartItems.push({sku: product.sku, name: product.name, qty});
+      cartItemIndex = this.cartItems.length - 1;
+    }
+    return cartItemIndex;
   }
 
   get items () {
@@ -22,6 +40,7 @@ export default class ShoppingCart {
   }
 
   get total () {
+    /*
     let total = 0;
     const skus = Object.keys(this.cart);
     skus.forEach(sku => {
@@ -32,11 +51,21 @@ export default class ShoppingCart {
     });
     this.totalCart = this._round(total, 2);
     this._promoTotal();
+    */
     return this.totalCart;
   }
 
-  _adjustCart (sku) {
-    const product = this._findProductBySKU(sku);
+
+  _cartTotal (product, cartItemIndex) {
+    console.log('this.totalCart: ', this.totalCart);
+    let total = this._productTotal(product, this.cart[product.sku]);
+    this.cartItemTotal[cartItemIndex] = total;
+    this.totalCart = this.cartItemTotal.reduce((acc, val) => acc + val);
+    this._promoTotal();
+    console.log('this.totalCart: ', this.totalCart);
+  }
+
+  _adjustCart (product) {
     if (product && product.extras && product.extras.length) {
       const {extras} = product;
       const {bundle} = this.cart;
@@ -71,7 +100,7 @@ export default class ShoppingCart {
               if (promo[code]) {
                 const discount = this.totalCart * promo[code];
                 const discountTotal = this.totalCart - discount;
-                this.totalCart = this._round(discountTotal, 2);;
+                this.totalCart = this._round(discountTotal, 2);
               }
             });
           };
@@ -106,6 +135,10 @@ export default class ShoppingCart {
   }
 
   _findProductBySKU (sku) {
-    return this.pricingRules.find(product => product.sku === sku);
+    let index = this.pricingRules.findIndex(product => product.sku === sku);
+    if(index === -1) {
+      return false;
+    }
+    return {product: this.pricingRules[index], index}
   }
 }
