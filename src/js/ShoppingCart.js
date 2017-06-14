@@ -11,8 +11,6 @@ export default class ShoppingCart {
   add (sku, promo_code) {
     this.cart[sku] = this.cart[sku] && this.cart[sku] > 0 ? this.cart[sku] += 1 : 1;
     if (promo_code) this.promoCode.push(promo_code);
-    //this._addCartItems(this.cart);
-    //this._addCartItems(this.cart.bundle);
     const findProduct = this._findProductBySKU(sku);
     if(findProduct) {
       this._adjustCart(findProduct.product);
@@ -36,33 +34,18 @@ export default class ShoppingCart {
   }
 
   get items () {
-    return this.cartItems;
+    return [...this.cartItems, ...this._addBundleItems(this.cart.bundle)];
   }
 
   get total () {
-    /*
-    let total = 0;
-    const skus = Object.keys(this.cart);
-    skus.forEach(sku => {
-      const findProduct = this._findProductBySKU(sku);
-      if (findProduct) {
-        total += this._productTotal(findProduct, this.cart[sku]);
-      }
-    });
-    this.totalCart = this._round(total, 2);
-    this._promoTotal();
-    */
     return this.totalCart;
   }
 
-
   _cartTotal (product, cartItemIndex) {
-    console.log('this.totalCart: ', this.totalCart);
     let total = this._productTotal(product, this.cart[product.sku]);
     this.cartItemTotal[cartItemIndex] = total;
-    this.totalCart = this.cartItemTotal.reduce((acc, val) => acc + val);
+    this.totalCart = this._round(this.cartItemTotal.reduce((acc, val) => acc + val), 2);
     this._promoTotal();
-    console.log('this.totalCart: ', this.totalCart);
   }
 
   _adjustCart (product) {
@@ -70,7 +53,7 @@ export default class ShoppingCart {
       const {extras} = product;
       const {bundle} = this.cart;
       extras.forEach(extra => {
-        if(this.cart[sku] % extra.qtyThreshold === 0) {
+        if(this.cart[product.sku] % extra.qtyThreshold === 0) {
           bundle[extra.sku] = bundle[extra.sku] && bundle[extra.sku] > 0
             ? bundle[extra.sku] += extra.qtyAdd : extra.qtyAdd;
         }
@@ -79,16 +62,18 @@ export default class ShoppingCart {
     }
   }
 
-  _addCartItems(cart) {
+  _addBundleItems(cart) {
     const skus = Object.keys(cart);
+    const bundles = []
     if (skus.length > 0 && cart.constructor === Object) {
       skus.forEach(sku => {
-        const product = this._findProductBySKU(sku);
-        if (product) {
-          this.cartItems.push({sku, name: product.name, qty: cart[sku]});
+        const findProduct = this._findProductBySKU(sku);
+        if (findProduct) {
+          bundles.push({sku, name: findProduct.product.name, qty: cart[sku]});
         }
       });
     }
+    return bundles;
   }
 
   _promoTotal () {

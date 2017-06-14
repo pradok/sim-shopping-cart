@@ -62,7 +62,6 @@ describe('Test ShoppingCart class', function () {
     assert.equal(shoppingCart.total, 49.80, 'return correct total');
     assert.deepEqual(shoppingCart.items, expectedCartItems, 'return cart Items');
   });
-  /*
   it('Get discount total 49.80 and Cart Items 3 x Unlimited 1 GB', function () {
     const expectedCartItems = [{sku: 'ult_small', name: 'Unlimited 1 GB', qty: 3}];
     shoppingCart.add('ult_small');
@@ -71,7 +70,6 @@ describe('Test ShoppingCart class', function () {
     assert.equal(shoppingCart.total, 49.80, 'return correct discount total');
     assert.deepEqual(shoppingCart.items, expectedCartItems, 'return cart Items');
   });
-  /*
   it('Get discount total 94.7 and Cart Items 3 x Unlimited 1 GB, 1 x Unlimited 5 GB', function () {
     const expectedCartItems = [
       {sku: 'ult_small', name: 'Unlimited 1 GB', qty: 3},
@@ -120,5 +118,4 @@ describe('Test ShoppingCart class', function () {
     assert.equal(shoppingCart.total, 31.32, 'return correct discount total');
     assert.deepEqual(shoppingCart.items, expectedCartItems, 'return cart Items');
   });
-  */
 });
